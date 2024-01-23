@@ -83,6 +83,17 @@ module xor_gate(in1, in2, out);
   or_gate or_gate1(and_out1, and_out2, out);
 endmodule
 
+module xnor_gate(in1, in2, out);
+  input in1;
+  input in2;
+  output out;
+
+  wire in1_xor_in2;
+
+  xor_gate xor1(in1, in2, in1_xor_in2);
+  not_gate not1(in1_xor_in2, out);
+endmodule
+
 module binary_multiplexer_gate(zero_in, one_in, f, out);
   input zero_in;
   input one_in;
@@ -288,11 +299,16 @@ module alu(a, b, control, res);
   wire [3:0] ans_2;
   full_summator_4 summator1(control[2], a, choosen_b, c_out, ans_2);
 
+  wire is_same_sign;
+  xnor_gate xnor1(a[3], b[3], is_same_sign);
+
+  wire [3:0] choose_for_ans_3;
+  binary_multiplexer_4 mult2(a, ans_2, is_same_sign, choose_for_ans_3);
   wire [3:0] ans_3;
   supply1 pwr;
-  right_bit_shift shift1(ans_2, {pwr, pwr}, ans_3);
+  right_bit_shift shift1(choose_for_ans_3, {pwr, pwr}, ans_3);
 
-  quaternary_multiplexer_4 mult2(ans_0, ans_1, ans_2, ans_3, control[1:0], res);
+  quaternary_multiplexer_4 mult3(ans_0, ans_1, ans_2, ans_3, control[1:0], res);
 endmodule
 
 module d_latch(clk, d, we, q);
