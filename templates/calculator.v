@@ -329,6 +329,18 @@ module d_latch(clk, d, we, q);
   end
 endmodule
 
+module register(clk, d, we, value);
+  input clk;
+  input [3:0] d;
+  input we;
+  output wire [3:0] value;
+
+  d_latch bit3(clk, d[3], we, value[3]);
+  d_latch bit2(clk, d[2], we, value[2]);
+  d_latch bit1(clk, d[1], we, value[1]);
+  d_latch bit0(clk, d[0], we, value[0]);
+endmodule
+
 module register_file(clk, rd_addr, we_addr, we_data, rd_data);
   input clk; // Сигнал синхронизации
   input [1:0] rd_addr, we_addr; // Номера регистров для чтения и записи
@@ -336,6 +348,16 @@ module register_file(clk, rd_addr, we_addr, we_data, rd_data);
 
   output [3:0] rd_data; // Данные, полученные в результате чтения из регистрового файла
   // TODO: implementation
+  wire [3:0] r0_data, r1_data, r2_data, r3_data;
+  wire [3:0] where_write;
+  two_to_four_decoder write_decoder(we_addr, where_write);
+
+  register r0(clk, we_data, where_write[0], r0_data);
+  register r1(clk, we_data, where_write[1], r1_data);
+  register r2(clk, we_data, where_write[2], r2_data);
+  register r3(clk, we_data, where_write[3], r3_data);
+  
+  quaternary_multiplexer_4 mult1(r0_data, r1_data, r2_data, r3_data, rd_addr, rd_data);
 endmodule
 
 module calculator(clk, rd_addr, immediate, we_addr, control, rd_data);
