@@ -369,4 +369,7 @@ module calculator(clk, rd_addr, immediate, we_addr, control, rd_data);
 
   output [3:0] rd_data; // Данные из регистра c номером 'rd_addr', подающиеся на выход
   // TODO: implementation
+  wire [3:0] result;
+  register_file reg_file(clk, rd_addr, we_addr, result, rd_data);
+  alu alu1(rd_data, immediate, control, result);
 endmodule

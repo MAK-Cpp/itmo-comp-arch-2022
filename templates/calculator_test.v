@@ -48,5 +48,68 @@ module calculator_test();
     we_addr = 2'b10;
     #5;
     clk = 0;
+    // r3 = r1(=4) < 7
+    #5;
+    clk = 1;
+    control = 3'b111;
+    immediate = 7;
+    rd_addr = 2'b01;
+    we_addr = 2'b11;
+    #5;
+    clk = 0;
+    // r3 = r3 + 0
+    #5;
+    clk = 1;
+    control = 3'b010;
+    immediate = 0;
+    rd_addr = 2'b11;
+    we_addr = 2'b11;
+    #5;
+    clk = 0;
+    // r2 = r1 + (-8)
+    #5;
+    clk = 1;
+    control = 3'b010;
+    immediate = -8;
+    rd_addr = 2'b01;
+    we_addr = 2'b10;
+    #5;
+    clk = 0;
+    // r2 = r2 - 4;
+    #5;
+    clk = 1;
+    control = 3'b110;
+    immediate = 4;
+    rd_addr = 2'b10;
+    we_addr = 2'b10;
+    #5;
+    clk = 0;
+    // r2 = r2 + 0;
+    #5;
+    clk = 1;
+    control = 3'b010;
+    immediate = 0;
+    rd_addr = 2'b10;
+    we_addr = 2'b10;
+    #5;
+    clk = 0;
+    // r0 = r2(=-8) < 7
+    #5;
+    clk = 1;
+    control = 3'b111;
+    immediate = 7;
+    rd_addr = 2'b10;
+    we_addr = 2'b00;
+    #5;
+    clk = 0;
+    // r0 = r0 + 0;
+    #5;
+    clk = 1;
+    control = 3'b010;
+    immediate = 0;
+    rd_addr = 2'b00;
+    we_addr = 2'b00;
+    #5;
+    clk = 0;
   end
 endmodule
