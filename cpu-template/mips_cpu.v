@@ -99,8 +99,13 @@ module mips_cpu(clk, pc, pc_new, instruction_memory_a, instruction_memory_rd, da
   assign operand_a = register_rd1;
   mux2_32 dm_mux1(register_rd2, sign_imm, alu_src, operand_b);
   wire [31:0] alu_result;
+  assign data_memory_a = alu_result;
   wire zero;
   alu_32 dm_alu(operand_a, operand_b, alu_control, alu_result, zero);
   assign pc_src = branch[1] & zero | branch[0] & (~zero);
   mux2_32 dm_mux2(alu_result, data_memory_rd, memto_reg, result);
+  // TODO: delete initial begin ... end
+  // initial begin
+  //     $monitor("opcode=%b reg_write=%b reg_dst=%b link=%b alu_src=%b branch=%b mem_write=%b memto_reg=%b alu_control=%b", op, register_we3, reg_dst, link, alu_src, branch, data_memory_we, memto_reg, alu_control);
+  // end
 endmodule
