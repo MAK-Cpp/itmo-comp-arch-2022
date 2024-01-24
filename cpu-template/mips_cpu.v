@@ -68,11 +68,9 @@ module mips_cpu(clk, pc, pc_new, instruction_memory_a, instruction_memory_rd, da
   // PC
 
   wire [31:0] pc_plus_4;
-  wire [31:0] pc_plus_8;
   adder pc_add1(pc, four, pc_plus_4);
-  adder pc_add2(pc_plus_4, four, pc_plus_8);
   mux2_32 pc_mux1(pc_plus_4, calc_pc, pc_src, pc_new);
-  mux2_32 pc_mux2(result, pc_plus_8, link, register_wd3);
+  mux2_32 pc_mux2(result, pc_plus_4, link, register_wd3);
 
   // register file
 
