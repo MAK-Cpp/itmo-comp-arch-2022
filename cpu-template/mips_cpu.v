@@ -67,7 +67,8 @@ module mips_cpu(clk, pc, pc_new, instruction_memory_a, instruction_memory_rd, da
 
   // PC
 
-  wire [31:0] pc_plus_4, pc_plus_8;
+  wire [31:0] pc_plus_4;
+  wire [31:0] pc_plus_8;
   adder pc_add1(pc, four, pc_plus_4);
   adder pc_add2(pc_plus_4, four, pc_plus_8);
   mux2_32 pc_mux1(pc_plus_4, calc_pc, pc_src, pc_new);
@@ -89,7 +90,7 @@ module mips_cpu(clk, pc, pc_new, instruction_memory_a, instruction_memory_rd, da
   adder rf_add1(moved_sign_imm, pc_plus_4, calc_branch_pc);
 
   wire [31:0] calc_jump_pc;
-  assign calc_new_ps = {4'b0000, addr, 2'b00}; // if it j-type command
+  assign calc_jump_pc = {4'b0000, addr, 2'b00}; // if it j-type command
   
   mux2_32 rf_mux2(calc_branch_pc, calc_jump_pc, reg_dst[1], calc_pc); // choose which address to use
 
@@ -105,7 +106,10 @@ module mips_cpu(clk, pc, pc_new, instruction_memory_a, instruction_memory_rd, da
   assign pc_src = branch[1] & zero | branch[0] & (~zero);
   mux2_32 dm_mux2(alu_result, data_memory_rd, memto_reg, result);
   // TODO: delete initial begin ... end
-  // initial begin
-  //     $monitor("opcode=%b reg_write=%b reg_dst=%b link=%b alu_src=%b branch=%b mem_write=%b memto_reg=%b alu_control=%b", op, register_we3, reg_dst, link, alu_src, branch, data_memory_we, memto_reg, alu_control);
-  // end
+  wire [31:0] moved_pc;
+  assign moved_pc = pc >> 2;
+  initial begin
+    // $monitor("opcode=%b reg_write=%b reg_dst=%b link=%b alu_src=%b branch=%b mem_write=%b memto_reg=%b alu_control=%b", op, register_we3, reg_dst, link, alu_src, branch, data_memory_we, memto_reg, alu_control);
+    // $monitor("PC = %b, command No. %d\naddr = %d, calc_jump_pc = %b", pc, moved_pc, addr, calc_jump_pc);
+  end
 endmodule
