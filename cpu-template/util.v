@@ -45,12 +45,17 @@ module alu_32(a, b, control, out, zero);
   output [31:0] out;
   output zero;
 
+  wire not_b;
+  assign not_b = ~b;
+
+  assign out = control[2]
+    ? (control[1]
+      ? (control[0] ? a < b : a - b)
+      : (control[0] ? a | not_b : a & not_b ))
+    : (control[1]
+      ? (control[0] ? 0 : a + b)
+      : (control[0] ? a | b : a & b));
   assign zero = (out == 0);
-  wire [31:0] bb;
-  mux2_32 mux1(b, ~b, control[2], bb);
-  wire [31:0] sum;
-  adder add1(a, bb, sum);
-  mux4_32 mux2({31'b0, sum[31]}, sum, a | bb, a & bb, control[1:0], out);
 endmodule
 
 module mux4_5(d0, d1, d2, d3, a, out);
