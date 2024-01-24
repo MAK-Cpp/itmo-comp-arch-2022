@@ -59,11 +59,14 @@ module mips_cpu(clk, pc, pc_new, instruction_memory_a, instruction_memory_rd, da
   wire [1:0] branch;
   wire alu_src;
   wire [1:0] reg_dst;
-  // wire reg_write; = register_we3
+  wire reg_write; // & ~regto_pc = register_we3
   wire link;
   wire [2:0] alu_control;
+  wire regto_pc;
 
-  control_unit ctrl_unit(op, funct, memto_reg, data_memory_we, branch, alu_src, reg_dst, register_we3, link, alu_control);
+  control_unit ctrl_unit(op, funct, memto_reg, data_memory_we, branch, alu_src, reg_dst, reg_write, link, alu_control);
+  assign regto_pc = (~alu_control[2]) & alu_control[1] & alu_control[0];
+  assign register_we3 = reg_write & (~regto_pc);
 
   // PC
 
@@ -90,7 +93,10 @@ module mips_cpu(clk, pc, pc_new, instruction_memory_a, instruction_memory_rd, da
   wire [31:0] calc_jump_pc;
   assign calc_jump_pc = {4'b0000, addr, 2'b00}; // if it j-type command
   
-  mux2_32 rf_mux2(calc_branch_pc, calc_jump_pc, reg_dst[1], calc_pc); // choose which address to use
+  // mux2_32 rf_mux2(calc_branch_pc, calc_jump_pc, reg_dst[1], calc_pc); // choose which address to use
+  wire [1:0] flags;
+  assign flags = {regto_pc, reg_dst[1]};
+  mux4_32 rf_mux2(calc_branch_pc, calc_jump_pc, register_rd1, register_rd1, {regto_pc, reg_dst[1]}, calc_pc);
 
   // data memory
 
@@ -101,13 +107,6 @@ module mips_cpu(clk, pc, pc_new, instruction_memory_a, instruction_memory_rd, da
   assign data_memory_a = alu_result;
   wire zero;
   alu_32 dm_alu(operand_a, operand_b, alu_control, alu_result, zero);
-  assign pc_src = branch[1] & zero | branch[0] & (~zero);
+  assign pc_src = branch[1] & zero | branch[0] & (~zero) | regto_pc;
   mux2_32 dm_mux2(alu_result, data_memory_rd, memto_reg, result);
-  // TODO: delete initial begin ... end
-  wire [31:0] moved_pc;
-  assign moved_pc = pc >> 2;
-  initial begin
-    // $monitor("opcode=%b reg_write=%b reg_dst=%b link=%b alu_src=%b branch=%b mem_write=%b memto_reg=%b alu_control=%b", op, register_we3, reg_dst, link, alu_src, branch, data_memory_we, memto_reg, alu_control);
-    // $monitor("PC = %b, command No. %d\naddr = %d, calc_jump_pc = %b", pc, moved_pc, addr, calc_jump_pc);
-  end
 endmodule

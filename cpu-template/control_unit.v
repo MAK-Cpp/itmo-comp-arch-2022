@@ -77,8 +77,10 @@ module alu_decoder(funct, alu_op, alu_control);
     assign not_f = ~f;
 
     assign alu_control[2] = not_x & y | x & not_y & a & not_b & not_d & e & not_f;
-    assign alu_control[1] = not_x | x & not_y & a & not_b & not_d & not_f & (not_c | e);
-    assign alu_control[0] = x & not_y & a & not_b & (not_c & d & not_e & f | c & not_d & e & not_f);
+    // assign alu_control[1] = not_x | x & not_y & a & not_b & not_d & not_f & (not_c | e);
+    assign alu_control[1] = not_x | x & not_y & not_b & not_d & not_f & (a & (not_c | e) | not_a & c & not_e);
+    assign alu_control[0] = x & not_y & not_b & (a & not_c & d & not_e & f | c & not_d & not_f & (a & e | not_a & not_e));
+    // assign alu_control[0] = x & not_y & a & not_b & (not_c & d & not_e & f | c & not_d & e & not_f);
 endmodule
 
 module control_unit(opcode, funct, memto_reg, mem_write, branch, alu_src, reg_dst, reg_write, link, alu_control);
